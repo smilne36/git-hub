@@ -1,0 +1,74 @@
+# Copy this to config.yaml and fill in your details.
+
+search:
+  keywords:
+    - "software engineer"
+    - "backend"
+    - "python"
+  exclude_keywords:
+    - "senior staff"
+    - "principal"
+    - "manager"
+  locations:
+    - "remote"
+    - "new york"
+    - "san francisco"
+  min_match_score: 2  # how many keywords must hit before we notify
+
+email:
+  smtp_host: smtp.gmail.com
+  smtp_port: 587
+  username: you@gmail.com
+  password: "your-app-password"  # Gmail: create an App Password
+  from_addr: you@gmail.com
+  to_addr: you@gmail.com
+
+# All sources here are public APIs (no scraping).
+sources:
+  remoteok:
+    enabled: true   # https://remoteok.com/api
+
+  greenhouse:
+    enabled: true   # https://boards-api.greenhouse.io/v1/boards/<slug>/jobs
+    boards:
+      - airbnb
+      - stripe
+      - figma
+
+  lever:
+    enabled: true   # https://api.lever.co/v0/postings/<slug>
+    companies:
+      - netflix
+      - plaid
+
+  ashby:
+    enabled: true   # https://api.ashbyhq.com/posting-api/job-board/<slug>
+    companies:
+      - ramp
+
+  adzuna:
+    enabled: false  # https://developer.adzuna.com — free tier, covers Indeed-style listings
+    app_id: ""
+    app_key: ""
+    country: us
+
+profile:
+  full_name: "Your Name"
+  email: "you@example.com"
+  phone: "+1 555 555 5555"
+  resume_path: "./resume.pdf"
+  cover_letter_path: "./cover_letter.txt"
+  linkedin: "https://linkedin.com/in/you"
+  github: "https://github.com/you"
+  website: ""
+  work_authorization: "Authorized to work in the US"
+  requires_sponsorship: false
+  common_answers:
+    "years of experience": "5"
+    "why are you interested": "I'm excited by the team's mission and the technical challenges in your stack."
+
+auto_apply:
+  enabled: false
+  only_sources:
+    - greenhouse
+  dry_run: true

@@ -1,0 +1,8 @@
+config.yaml
+seen_jobs.db
+__pycache__/
+*.pyc
+.venv/
+venv/
+resume.pdf
+cover_letter.txt
