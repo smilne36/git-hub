@@ -57,10 +57,8 @@ sources:
     enabled: true
     boards:
       - bungie
-      - niantic
       - discord
       - roblox
-      - embarkstudios
 
   lever:
     enabled: true

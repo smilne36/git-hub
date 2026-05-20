@@ -44,7 +44,7 @@ def main(limit: int = 10, config_path: str = "config.yaml") -> int:
     print(f"\n=== {len(matches)} total matches, showing top {min(limit, len(matches))} ===\n")
     for job, sc in matches[:limit]:
         print(f"[{sc}] {job.title}")
-        print(f"     {job.company} · {job.location or '?'} · {job.source}")
+        print(f"     {job.company} | {job.location or '?'} | {job.source}")
         print(f"     {job.url}\n")
     return 0
 
