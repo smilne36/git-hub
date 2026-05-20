@@ -1,23 +1,50 @@
 # Copy this to config.yaml and fill in your details.
+# config.yaml is gitignored so secrets stay local.
 
 search:
+  # Any of these words found in title+description count toward match_score.
   keywords:
-    - "software engineer"
-    - "backend"
-    - "python"
+    - "c++"
+    - "cpp"
+    - "opengl"
+    - "vulkan"
+    - "directx"
+    - "graphics"
+    - "rendering"
+    - "renderer"
+    - "shader"
+    - "game engine"
+    - "engine programmer"
+    - "engine developer"
+    - "gameplay"
+    - "game programmer"
+    - "game developer"
+    - "physics"
+    - "unreal"
+    - "unity"
+
+  # Matched against the JOB TITLE only. A junior role can still mention
+  # "senior engineers" in the body without getting filtered out.
   exclude_keywords:
-    - "senior staff"
+    - "senior"
+    - "sr."
+    - "staff"
     - "principal"
+    - "lead"
     - "manager"
-  locations:
-    - "remote"
-    - "new york"
-    - "san francisco"
-  min_match_score: 2  # how many keywords must hit before we notify
+    - "director"
+    - "head of"
+    - "vp "
+    - "vice president"
+
+  # Soft location filter. Leave empty [] to allow any location.
+  locations: []
+
+  # Need at least this many keyword hits to notify.
+  min_match_score: 1
 
 discord:
-  # Paste your channel's webhook URL here.
-  # In Discord: channel -> Edit -> Integrations -> Webhooks -> New Webhook -> Copy URL.
+  # Server Settings -> Integrations -> Webhooks -> New Webhook -> Copy URL.
   webhook_url: ""
 
 # All sources here are public APIs (no scraping).
@@ -26,22 +53,22 @@ sources:
     enabled: true
 
   greenhouse:
+    # Game / engine studios that host on Greenhouse. Drop any slug that 404s.
     enabled: true
     boards:
-      - airbnb
-      - stripe
-      - figma
+      - bungie
+      - niantic
+      - discord
+      - roblox
+      - embarkstudios
 
   lever:
     enabled: true
-    companies:
-      - netflix
-      - plaid
+    companies: []
 
   ashby:
     enabled: true
-    companies:
-      - ramp
+    companies: []
 
   adzuna:
     enabled: false
@@ -61,8 +88,8 @@ profile:
   work_authorization: "Authorized to work in the US"
   requires_sponsorship: false
   common_answers:
-    "years of experience": "5"
-    "why are you interested": "I'm excited by the team's mission and the technical challenges in your stack."
+    "years of experience": "0"
+    "why are you interested": "I'm a C++ / graphics developer excited by the team's engine work and gameplay challenges."
 
 auto_apply:
   enabled: false

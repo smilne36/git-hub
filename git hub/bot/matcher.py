@@ -2,16 +2,17 @@ from .config import Job
 
 
 def score(job: Job, keywords: list[str], exclude: list[str], locations: list[str]) -> int:
-    """Return a positive score for matching jobs, or 0/negative for non-matches.
+    """Return a positive score for matching jobs, or 0 for non-matches.
 
-    Score = number of keyword hits in title/description.
-    Returns 0 if any exclude keyword matches, or if location filter is set
-    and the job's location doesn't match any allowed location.
+    Score = number of keyword hits across title + description.
+    Excludes are matched against the TITLE only, so a junior posting that
+    mentions "work alongside senior engineers" in the body still passes.
     """
+    title = (job.title or "").lower()
     text = f"{job.title} {job.description} {job.location}".lower()
 
     for bad in exclude:
-        if bad.lower() in text:
+        if bad.lower() in title:
             return 0
 
     if locations:
