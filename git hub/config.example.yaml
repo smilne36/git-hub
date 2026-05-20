@@ -1,0 +1,96 @@
+# Copy this to config.yaml and fill in your details.
+# config.yaml is gitignored so secrets stay local.
+
+search:
+  # Any of these words found in title+description count toward match_score.
+  keywords:
+    - "c++"
+    - "cpp"
+    - "opengl"
+    - "vulkan"
+    - "directx"
+    - "graphics"
+    - "rendering"
+    - "renderer"
+    - "shader"
+    - "game engine"
+    - "engine programmer"
+    - "engine developer"
+    - "gameplay"
+    - "game programmer"
+    - "game developer"
+    - "physics"
+    - "unreal"
+    - "unity"
+
+  # Matched against the JOB TITLE only. A junior role can still mention
+  # "senior engineers" in the body without getting filtered out.
+  exclude_keywords:
+    - "senior"
+    - "sr."
+    - "staff"
+    - "principal"
+    - "lead"
+    - "manager"
+    - "director"
+    - "head of"
+    - "vp "
+    - "vice president"
+
+  # Soft location filter. Leave empty [] to allow any location.
+  locations: []
+
+  # Need at least this many keyword hits to notify.
+  min_match_score: 1
+
+discord:
+  # Server Settings -> Integrations -> Webhooks -> New Webhook -> Copy URL.
+  webhook_url: ""
+
+# All sources here are public APIs (no scraping).
+sources:
+  remoteok:
+    enabled: true
+
+  greenhouse:
+    # Game / engine studios that host on Greenhouse. Drop any slug that 404s.
+    enabled: true
+    boards:
+      - bungie
+      - discord
+      - roblox
+
+  lever:
+    enabled: true
+    companies: []
+
+  ashby:
+    enabled: true
+    companies: []
+
+  adzuna:
+    enabled: false
+    app_id: ""
+    app_key: ""
+    country: us
+
+profile:
+  full_name: "Your Name"
+  email: "you@example.com"
+  phone: "+1 555 555 5555"
+  resume_path: "./resume.pdf"
+  cover_letter_path: "./cover_letter.txt"
+  linkedin: "https://linkedin.com/in/you"
+  github: "https://github.com/you"
+  website: ""
+  work_authorization: "Authorized to work in the US"
+  requires_sponsorship: false
+  common_answers:
+    "years of experience": "0"
+    "why are you interested": "I'm a C++ / graphics developer excited by the team's engine work and gameplay challenges."
+
+auto_apply:
+  enabled: false
+  only_sources:
+    - greenhouse
+  dry_run: true
