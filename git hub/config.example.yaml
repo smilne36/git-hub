@@ -16,12 +16,19 @@ search:
   min_match_score: 2  # how many keywords must hit before we notify
 
 email:
+  # Leave username blank to disable email entirely.
   smtp_host: smtp.gmail.com
   smtp_port: 587
-  username: you@gmail.com
-  password: "your-app-password"  # Gmail: create an App Password
-  from_addr: you@gmail.com
-  to_addr: you@gmail.com
+  username: ""  # e.g. you@gmail.com
+  password: ""  # Gmail App Password
+  from_addr: ""
+  to_addr: ""
+
+discord:
+  # Paste your channel's webhook URL here. Get one in Discord:
+  # channel -> Edit -> Integrations -> Webhooks -> New Webhook -> Copy URL.
+  # Leave blank to disable.
+  webhook_url: ""
 
 # All sources here are public APIs (no scraping).
 sources:
