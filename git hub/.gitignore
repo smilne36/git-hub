@@ -1,5 +1,4 @@
 config.yaml
-seen_jobs.db
 __pycache__/
 *.pyc
 .venv/
