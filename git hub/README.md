@@ -1,10 +1,10 @@
 # Job Search Bot
 
-A Python bot that searches for jobs across public APIs, emails you when
-matches are found, and can auto-submit applications on Greenhouse using a
-stored resume.
+A Python bot that searches for jobs across public APIs, pings a Discord
+channel when matches are found, and can auto-submit applications on
+Greenhouse using a stored resume.
 
-## Sources (all public APIs — no scraping)
+## Sources (all public APIs)
 
 | Source     | Endpoint                                                | What it covers                                |
 |------------|---------------------------------------------------------|-----------------------------------------------|
@@ -17,47 +17,45 @@ stored resume.
 You give it a list of company board slugs (e.g. `airbnb`, `stripe`, `figma`)
 and it pulls every open role from each.
 
-> A note on LinkedIn and Indeed: neither offers a usable public API for job
-> search, and both actively block scrapers. Adzuna covers the same listings
-> Indeed does, the legal way. So the bot just uses APIs.
-
 ## Setup
 
 ```bash
 pip install -r requirements.txt
 cp config.example.yaml config.yaml
-# edit config.yaml — keywords, email creds, board slugs, resume path
+# edit config.yaml — discord webhook, keywords, board slugs, resume path
 python -m bot.main
 ```
 
-Run it on a schedule (cron, systemd timer, or GitHub Actions) every few
-hours. It uses a local SQLite DB to dedupe, so you only get pinged once per
-job.
+Run it on a schedule (cron, Windows Task Scheduler, GitHub Actions). It
+dedupes via SQLite so you only get pinged once per job.
+
+## Discord setup
+
+1. In your server: right-click the channel you want pings in → **Edit
+   Channel** → **Integrations** → **Webhooks** → **New Webhook**
+2. Click **Copy Webhook URL**
+3. Paste it into `config.yaml`:
+   ```yaml
+   discord:
+     webhook_url: "https://discord.com/api/webhooks/..."
+   ```
+4. Run `python -m bot.main`. Matches show up as rich embeds with title,
+   company, location, score, and a clickable link.
+
+> **Keep the webhook URL private.** Anyone who has it can post messages to
+> your channel. `config.yaml` is gitignored so it won't be committed.
 
 ## Auto-apply
 
 Set `auto_apply.enabled: true` in `config.yaml` and the bot will POST your
-resume + basic info (name, email, phone) to Greenhouse postings that match.
+resume + basic info to Greenhouse postings that match.
 
-**Start with `dry_run: true`** — it logs what it would submit without
-actually sending. Once you're happy with the matches, flip it off.
+**Start with `dry_run: true`** (the default) — it logs what it *would*
+submit without actually sending. Once you're happy, flip it off.
 
-Greenhouse postings with custom required questions (work auth dropdowns,
-"why this role?" text fields, etc.) will reject the bare submission; the bot
-falls back to just emailing you the link for those. Lever and Ashby
-applications go through their own forms with custom fields per posting, so
-those are notify-only.
-
-## Configuration
-
-See `config.example.yaml`. Important fields:
-
-- `search.keywords` / `exclude_keywords` — phrases that must (or must not)
-  appear in title or description.
-- `search.locations` — filter by location string (e.g. "remote", "nyc").
-- `sources.<name>.boards` / `companies` — board slugs to pull from.
-- `profile.resume_path` — path to your PDF resume.
-- `auto_apply.enabled` / `dry_run` — off by default.
+Greenhouse postings with custom required questions will reject the bare
+submission and fall back to notify-only. Lever and Ashby applications go
+through their own forms with custom fields, so those are notify-only too.
 
 ## Layout
 
@@ -67,11 +65,7 @@ bot/
   config.py        # YAML loader + Job dataclass
   storage.py       # SQLite dedupe
   matcher.py       # keyword/location scoring
-  notifier.py      # SMTP email
+  notifier.py      # Discord webhook
   sources/         # one file per API
   applier/         # auto-submit logic
 ```
-
-Each source is a class with a `fetch() -> list[Job]` method. Add a new file
-under `bot/sources/`, register it in `bot/sources/__init__.py`, and the main
-loop picks it up.

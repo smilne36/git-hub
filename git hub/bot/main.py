@@ -4,7 +4,7 @@ from pathlib import Path
 from .config import Config
 from .storage import SeenStore
 from .matcher import score
-from .notifier import send_email, render_html, send_discord
+from .notifier import send_discord
 from .sources import build_sources
 from .applier import build_applier
 
@@ -30,7 +30,7 @@ def main(config_path: str = "config.yaml") -> int:
     dry_run = auto.get("dry_run", True)
     profile = cfg.get("profile", default={}) or {}
 
-    matches: list[tuple] = []  # (job, score, applied)
+    matches: list[tuple] = []
 
     for src in sources:
         print(f"[fetch] {src.name}")
@@ -46,7 +46,7 @@ def main(config_path: str = "config.yaml") -> int:
                 continue
             sc = score(job, keywords, excludes, locations)
             if sc < min_score:
-                seen.add(job.id, src.name)  # mark seen even if not matched, so we don't re-score
+                seen.add(job.id, src.name)
                 continue
 
             applied = False
@@ -68,21 +68,12 @@ def main(config_path: str = "config.yaml") -> int:
 
     matches.sort(key=lambda t: -t[1])
 
-    notified = False
-    email_cfg = cfg.get("email", default={}) or {}
-    if email_cfg.get("username"):
-        send_email(email_cfg, f"{len(matches)} new job matches", render_html(matches))
-        print(f"emailed {len(matches)} matches")
-        notified = True
-
-    discord_cfg = cfg.get("discord", default={}) or {}
-    if discord_cfg.get("webhook_url"):
-        send_discord(discord_cfg["webhook_url"], matches)
+    webhook = (cfg.get("discord", default={}) or {}).get("webhook_url", "").strip()
+    if webhook:
+        send_discord(webhook, matches)
         print(f"posted {len(matches)} matches to discord")
-        notified = True
-
-    if not notified:
-        print("no notifier configured; printing matches:")
+    else:
+        print("discord.webhook_url not set; printing matches:")
         for job, sc, applied in matches:
             print(f"  [{sc}{'*' if applied else ''}] {job.title} @ {job.company} — {job.url}")
 
