@@ -53,20 +53,66 @@ sources:
     enabled: true
 
   greenhouse:
-    # Game / engine studios that host on Greenhouse. Drop any slug that 404s.
+    # Game / engine studios known to host on Greenhouse. 404s are non-fatal —
+    # the bot logs them and moves on, so it's safe to leave dead slugs here.
     enabled: true
     boards:
+      # confirmed working
       - bungie
       - discord
       - roblox
+      # AAA / large
+      - riotgames
+      - 2k
+      - crystaldynamics
+      - supercell
+      - jagex
+      - digitalextremes
+      - arenanet
+      - improbable
+      # indie / mid-size
+      - innersloth
+      - thatgamecompany
+      - second-dinner
+      - mediatonic
+      - harmonix
+      - behaviourinteractive
+      - klei
+      - coffeestain
+      - annapurnainteractive
+      - devolverdigital
+      - larianstudios
+      - skydance
+      - proletariat
+      - gardens
+      - ironbelly
+      - skillz
+      - voodoo
+      - moonactive
+      # game-adjacent / engines / graphics
+      - epicgames
+      - unity3d
 
   lever:
+    # Game studios known to host on Lever.
     enabled: true
-    companies: []
+    companies:
+      - innersloth
+      - harmonixmusic
+      - iron-galaxy
+      - doubledamage
+      - toomanybones
+      - counterplay
+      - exodus
+      - skyboxlabs
 
   ashby:
+    # Studios on Ashby. Most game studios use Greenhouse/Lever instead, so
+    # this list is short.
     enabled: true
-    companies: []
+    companies:
+      - probablymonsters
+      - secret6
 
   adzuna:
     enabled: false
