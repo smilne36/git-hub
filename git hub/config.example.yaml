@@ -2,7 +2,32 @@
 # config.yaml is gitignored so secrets stay local.
 
 search:
-  # Any of these words found in title+description count toward match_score.
+  # A job MUST contain at least one of these (in title or description) to
+  # be considered at all. Anchors the search to a core game/C++ stack so
+  # loose words like "graphics" or "physics" can't pull in non-game roles.
+  required_keywords:
+    - "c++"
+    - "cpp"
+    - "opengl"
+    - "vulkan"
+    - "directx"
+    - "hlsl"
+    - "glsl"
+    - "shader"
+    - "game engine"
+    - "engine programmer"
+    - "engine developer"
+    - "gameplay"
+    - "game programmer"
+    - "game developer"
+    - "graphics programmer"
+    - "graphics engineer"
+    - "rendering engineer"
+    - "unreal engine"
+    - "unity engine"
+
+  # Bonus terms: each hit adds 1 to the score. Used for ranking only —
+  # a job still has to clear required_keywords to count.
   keywords:
     - "c++"
     - "cpp"
@@ -11,20 +36,15 @@ search:
     - "directx"
     - "graphics"
     - "rendering"
-    - "renderer"
     - "shader"
     - "game engine"
-    - "engine programmer"
-    - "engine developer"
     - "gameplay"
-    - "game programmer"
-    - "game developer"
-    - "physics"
+    - "physics engine"
     - "unreal"
     - "unity"
 
-  # Matched against the JOB TITLE only. A junior role can still mention
-  # "senior engineers" in the body without getting filtered out.
+  # Matched against the JOB TITLE only. Junior roles whose body mentions
+  # "work alongside senior engineers" still pass.
   exclude_keywords:
     - "senior"
     - "sr."
@@ -36,6 +56,19 @@ search:
     - "head of"
     - "vp "
     - "vice president"
+    # non-engineering roles that sometimes contain matching words
+    - "artist"
+    - "animator"
+    - "designer"
+    - "producer"
+    - "marketing"
+    - "sales"
+    - "recruiter"
+    - "writer"
+    - "scientist"
+    - "phd"
+    - "qa "
+    - "quality assurance"
 
   # Soft location filter. Leave empty [] to allow any location.
   locations: []
