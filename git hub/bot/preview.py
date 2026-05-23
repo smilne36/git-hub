@@ -23,6 +23,7 @@ def main(limit: int = 10, config_path: str = "config.yaml") -> int:
     search = cfg.get("search", default={})
     keywords = search.get("keywords", [])
     excludes = search.get("exclude_keywords", [])
+    required = search.get("required_keywords", [])
     locations = search.get("locations", [])
     min_score = search.get("min_match_score", 1)
 
@@ -36,7 +37,7 @@ def main(limit: int = 10, config_path: str = "config.yaml") -> int:
             continue
         print(f"  got {len(jobs)} jobs")
         for job in jobs:
-            sc = score(job, keywords, excludes, locations)
+            sc = score(job, keywords, excludes, locations, required)
             if sc >= min_score:
                 matches.append((job, sc))
 
