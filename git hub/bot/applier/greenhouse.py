@@ -35,8 +35,6 @@ class GreenhouseApplier:
 
         first, _, last = self.profile["full_name"].partition(" ")
         resume_path = Path(self.profile["resume_path"])
-        if not resume_path.exists():
-            return False, f"resume not found at {resume_path}"
 
         url = f"https://boards.greenhouse.io/{board}/jobs/{gh_job_id}/apply"
         data = {
@@ -48,6 +46,9 @@ class GreenhouseApplier:
 
         if self.dry_run:
             return True, f"DRY RUN — would POST to {url} with {list(data)} + resume"
+
+        if not resume_path.exists():
+            return False, f"resume not found at {resume_path}"
 
         with open(resume_path, "rb") as fh:
             files = {"resume": (resume_path.name, fh, "application/pdf")}
