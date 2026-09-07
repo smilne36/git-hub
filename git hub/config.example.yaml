@@ -153,6 +153,29 @@ sources:
     app_key: ""
     country: us
 
+  hackernews:
+    # 'Ask HN: Who is hiring?' — posted monthly on the 1st. High signal
+    # for tech roles, including many small studios and engine shops that
+    # never touch Greenhouse. No API key required.
+    enabled: true
+    max_comments: 500
+
+# AI fit-scoring: if enabled, each keyword-matched job is sent to Claude
+# for a 1-10 fit score and one-line reason. Score is displayed in Discord
+# and cached in seen_jobs.db so re-runs don't re-score.
+# Set the ANTHROPIC_API_KEY env var (or GH Actions secret) to enable.
+ai_scoring:
+  enabled: true
+  model: "claude-haiku-4-5"
+  # Only score jobs whose keyword score is at least this — saves tokens.
+  min_keyword_score: 1
+  # Bio the AI weighs against each posting.
+  candidate_bio: |
+    Entry-level candidate targeting C++ / graphics / game engine /
+    gameplay roles. Comfortable with OpenGL, Vulkan basics, and modern
+    C++. Prefers real engine or gameplay work over data/backend roles.
+    Open to onsite or remote in the US.
+
 profile:
   full_name: "Your Name"
   email: "you@example.com"
