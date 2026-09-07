@@ -1,16 +1,16 @@
-name: job-search-bot
+name: job-search-digest
 
 on:
   schedule:
-    # Hourly at minute 7 (offset from :00 to avoid GitHub's busy minute)
-    - cron: "7 * * * *"
+    # 00:07 UTC = 8:07pm ET (previous evening). Adjust to taste.
+    - cron: "7 0 * * *"
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
 concurrency:
-  group: job-search-bot
+  group: job-search-digest
   cancel-in-progress: false
 
 jobs:
@@ -48,15 +48,12 @@ jobs:
           open(p, 'w').write(s)
           "
 
-      - name: Run bot
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python -m bot.main
+      - name: Post digest
+        run: python -m bot.digest
 
-      - name: Commit updated seen_jobs.db
+      - name: Commit follow-up marks
         run: |
           if [ ! -f seen_jobs.db ]; then
-            echo "no seen_jobs.db produced, skipping commit"
             exit 0
           fi
           cd ..
@@ -64,8 +61,8 @@ jobs:
           git config user.email "job-search-bot@users.noreply.github.com"
           git add "git hub/seen_jobs.db"
           if git diff --staged --quiet; then
-            echo "no dedupe changes"
+            echo "no follow-up changes"
             exit 0
           fi
-          git commit -m "Update seen_jobs.db [skip ci]"
+          git commit -m "Digest: mark follow-ups sent [skip ci]"
           git push

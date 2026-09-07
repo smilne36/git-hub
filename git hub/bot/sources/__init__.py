@@ -3,6 +3,7 @@ from .greenhouse import Greenhouse
 from .lever import Lever
 from .ashby import Ashby
 from .adzuna import Adzuna
+from .hackernews import HackerNews
 
 
 def build_sources(cfg: dict) -> list:
@@ -19,4 +20,6 @@ def build_sources(cfg: dict) -> list:
     if s.get("adzuna", {}).get("enabled"):
         a = s["adzuna"]
         sources.append(Adzuna(a["app_id"], a["app_key"], a.get("country", "us")))
+    if s.get("hackernews", {}).get("enabled"):
+        sources.append(HackerNews(s["hackernews"].get("max_comments", 500)))
     return sources
