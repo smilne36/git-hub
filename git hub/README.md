@@ -75,14 +75,34 @@ git pull && python -m bot.applied apply <url> \
     && git add seen_jobs.db && git commit -m "applied to X" && git push
 ```
 
-## Auto-apply (Greenhouse only, off by default)
+## Auto-apply (`bot.autoapply`) — local, human-in-the-loop
 
-Set `auto_apply.enabled: true` and the bot posts your resume + basic
-info to matching Greenhouse jobs. **Start with `dry_run: true`** — it
-logs what it *would* submit without actually sending.
+Runs on your machine, so your resume stays local. Only fires against
+strong AI-scored matches and asks you to confirm each one:
 
-Postings with custom required questions fall back to notify-only.
-Lever and Ashby are notify-only.
+```bash
+python -m bot.autoapply                       # min AI score 8, confirm each
+python -m bot.autoapply --min-score 9         # raise the bar
+python -m bot.autoapply --dry-run --yes       # simulate everything
+python -m bot.autoapply <url_or_id>           # apply to one specific job
+python -m bot.autoapply --yes                 # yolo — skip confirms
+```
+
+Requirements:
+- `profile.full_name`, `email`, `phone`, `resume_path` set in config.yaml
+- The file at `resume_path` exists locally (a PDF)
+
+Only Greenhouse jobs can be submitted this way (Lever/Ashby have
+per-form custom fields, so those stay notify-only). Postings with
+custom required questions get rejected by the API — the CLI reports
+that and moves on.
+
+After submitting, commit `seen_jobs.db` so the hourly workflow
+doesn't re-notify or re-consider those roles:
+
+```bash
+git add "git hub/seen_jobs.db" && git commit -m "applied" && git push
+```
 
 ## Discord webhook
 
@@ -99,7 +119,8 @@ Lever and Ashby are notify-only.
 bot/
   main.py          # entry: fetch → filter → AI score → post to Discord
   digest.py        # nightly summary (new roles, follow-ups due)
-  applied.py       # CLI: apply / like / pass / list / pending
+  applied.py       # CLI: mark apply / like / pass / list / pending
+  autoapply.py     # CLI: submit resume to strong Greenhouse matches
   ai_score.py      # Claude Haiku fit-scoring
   config.py        # YAML loader + Job dataclass
   storage.py       # SQLite dedupe + AI cache + tracker
