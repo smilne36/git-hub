@@ -8,6 +8,30 @@ It is transparent DSP, not a black box: subsonic filter → tone EQ → glue
 compression → limiter → loudness normalisation. You can read exactly what happens
 to your audio in [`masterlib/chain.py`](masterlib/chain.py).
 
+There are **two ways to use it**: a click-and-go **desktop app** (Dear ImGui) or
+the **command line**. Both share the same engine.
+
+## Desktop app (GUI)
+
+A single window: load a bounce, read the assistant's advice, tweak the settings,
+hit **Master**.
+
+**Windows (easiest):** double-click **`run-gui.bat`**. The first run sets up
+everything automatically (takes a minute); after that it just opens the app.
+
+**Any platform (from a terminal):**
+
+```bash
+cd mastering
+python3 -m venv venv && source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements-gui.txt
+python gui.py
+```
+
+The app flow, top to bottom: **1.** Open your WAV → **2.** the assistant tells you
+what it needs → **3.** adjust loudness target / tone / strength (or click *Use
+recommended*) → **4.** Master. The mastered file is written next to your original.
+
 ## Mixing vs. mastering (what this is and isn't)
 
 - **Mixing** balances your *separate* tracks (drums, bass, vocals…). You do that
@@ -121,11 +145,15 @@ It prints a before/after report so you can see exactly what changed:
 ## Test
 
 ```bash
-python tests/smoke_test.py
+python tests/smoke_test.py     # the DSP engine + assistant
+python tests/test_session.py   # the GUI's logic (headless, no window needed)
 ```
 
-Generates synthetic audio, masters it, and asserts the output hits its loudness
-target, respects the true-peak ceiling, and survives a round-trip through disk.
+`smoke_test.py` generates synthetic audio, masters it, and asserts the output
+hits its loudness target, respects the true-peak ceiling, and survives a
+round-trip through disk. `test_session.py` exercises the app's state/controller
+(load, analyse, advise, foreground and background mastering) without opening a
+window.
 
 ## Built on
 

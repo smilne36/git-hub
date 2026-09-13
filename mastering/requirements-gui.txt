@@ -1,0 +1,3 @@
+# GUI dependencies -- includes the core engine requirements plus Dear ImGui.
+-r requirements.txt
+imgui-bundle>=1.6

@@ -4,3 +4,7 @@ __pycache__/
 *.mastered.wav
 *.mastered.mp3
 tests/_smoke_out.wav
+tests/_session_in.wav
+tests/_session_out.wav
+imgui.ini
+*.ini
