@@ -25,6 +25,7 @@ import os
 import sys
 
 from masterlib import audio_io
+from masterlib.advisor import GLYPHS, advise
 from masterlib.analysis import LoudnessStats
 from masterlib.chain import MasterResult, master
 from masterlib.presets import (
@@ -71,6 +72,20 @@ def _print_report(result: MasterResult, out_path: str) -> None:
     print(f"\n  wrote: {out_path}")
 
 
+def _print_advice(adv, target_lufs: float, brief: bool = False) -> None:
+    findings = adv.findings
+    if brief:  # only the things worth acting on
+        findings = [f for f in findings if f[0] != "ok"]
+        if not findings:
+            return
+    header = "=== Assistant summary ===" if brief else "=== Mastering assistant ==="
+    print(f"\n{header}")
+    for severity, text in findings:
+        print(f"  {GLYPHS[severity]}{text}")
+    if not brief:
+        print(f"\n  {adv.summary}")
+
+
 def _default_output(input_path: str) -> str:
     root, _ = os.path.splitext(input_path)
     return f"{root}.mastered.wav"
@@ -85,16 +100,22 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("-o", "--output", help="output WAV path")
     p.add_argument("--analyze", action="store_true",
                    help="only measure the input and print stats; write nothing")
+    p.add_argument("--advise", action="store_true",
+                   help="diagnose the bounce in plain English and recommend "
+                        "settings; write nothing")
+    p.add_argument("--auto", action="store_true",
+                   help="let the assistant pick tone and strength for you "
+                        "(explicit --tone/--strength still win)")
     p.add_argument("--target", choices=sorted(TARGETS),
                    help="named loudness target (overrides --target-lufs)")
     p.add_argument("--target-lufs", type=float, default=TARGETS["streaming"],
                    help="explicit integrated loudness target in LUFS")
     p.add_argument("--true-peak", type=float, default=DEFAULT_TRUE_PEAK_DB,
                    help="true-peak ceiling in dBTP")
-    p.add_argument("--tone", choices=sorted(TONES), default=DEFAULT_TONE,
-                   help="tonal colouring")
-    p.add_argument("--strength", choices=sorted(STRENGTHS), default=DEFAULT_STRENGTH,
-                   help="compression/limiting intensity")
+    p.add_argument("--tone", choices=sorted(TONES), default=None,
+                   help=f"tonal colouring (default: {DEFAULT_TONE})")
+    p.add_argument("--strength", choices=sorted(STRENGTHS), default=None,
+                   help=f"compression/limiting intensity (default: {DEFAULT_STRENGTH})")
     p.add_argument("--reference", help="reference track to match tonal balance to")
     p.add_argument("--match-strength", type=float, default=0.6,
                    help="how far to move toward the reference, 0..1")
@@ -113,13 +134,29 @@ def main(argv=None) -> int:
     audio = audio_io.load(args.input)
     print(f"loaded {args.input}: {audio.duration:.1f}s, {audio.channels}ch, {audio.sr} Hz")
 
+    target_lufs = TARGETS[args.target] if args.target else args.target_lufs
+
     if args.analyze:
         from masterlib.analysis import analyze
         print("\n=== Analysis ===")
         _print_stats("input", analyze(audio))
         return 0
 
-    target_lufs = TARGETS[args.target] if args.target else args.target_lufs
+    # Assistant diagnosis + recommendations.
+    adv = advise(audio, target_lufs)
+
+    if args.advise:
+        _print_advice(adv, target_lufs)
+        cmd = (f"python master.py {args.input} --tone {adv.recommended_tone} "
+               f"--strength {adv.recommended_strength}")
+        print(f"\n  To master with these: {cmd}")
+        print("  (or just add --auto to any command)")
+        return 0
+
+    # Resolve tone/strength: explicit flags win, then --auto recommendations,
+    # then the plain defaults.
+    tone = args.tone or (adv.recommended_tone if args.auto else DEFAULT_TONE)
+    strength = args.strength or (adv.recommended_strength if args.auto else DEFAULT_STRENGTH)
 
     reference = None
     if args.reference:
@@ -132,14 +169,15 @@ def main(argv=None) -> int:
         audio,
         target_lufs=target_lufs,
         true_peak_db=args.true_peak,
-        tone=args.tone,
-        strength=args.strength,
+        tone=tone,
+        strength=strength,
         reference=reference,
         match_strength=args.match_strength,
     )
 
     out_path = args.output or _default_output(args.input)
     audio_io.save(out_path, result.audio)
+    _print_advice(adv, target_lufs, brief=True)
     _print_report(result, out_path)
 
     if args.mp3:

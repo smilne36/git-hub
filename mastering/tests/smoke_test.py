@@ -78,7 +78,29 @@ def main() -> int:
     ok &= check("reference EQ moves are bounded (<= 4 dB)",
                 all(abs(f[2]) <= 4.0 + 1e-6 for f in r_ref.match_filters))
 
-    # 4) Round-trip through disk works.
+    # 4) The assistant produces valid recommendations and reacts to the audio.
+    from masterlib.advisor import advise
+    from masterlib.presets import STRENGTHS, TONES
+
+    adv = advise(song, target_lufs=-14.0)
+    ok &= check("assistant recommends a real tone",
+                adv.recommended_tone in TONES)
+    ok &= check("assistant recommends a real strength",
+                adv.recommended_strength in STRENGTHS)
+    ok &= check("assistant produced at least one finding",
+                len(adv.findings) > 0)
+
+    # A deliberately muddy signal should trigger the 'open' tone recommendation.
+    sr, n = 44100, 44100 * 5
+    t = np.arange(n) / sr
+    mud = sum(np.sin(2 * np.pi * f * t) for f in (350, 500)) * 1.2
+    mud += np.sin(2 * np.pi * 3000 * t) * 0.2
+    mud = (mud / np.max(np.abs(mud)) * 0.1).astype(np.float32)
+    muddy = Audio(np.stack([mud, mud], axis=1), sr)
+    ok &= check("muddy mix gets the 'open' tone recommendation",
+                advise(muddy).recommended_tone == "open")
+
+    # 5) Round-trip through disk works.
     tmp = os.path.join(os.path.dirname(__file__), "_smoke_out.wav")
     audio_io.save(tmp, r.audio)
     reloaded = audio_io.load(tmp)

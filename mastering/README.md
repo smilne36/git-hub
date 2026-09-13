@@ -36,9 +36,15 @@ pip install -r requirements.txt
 ## Use
 
 ```bash
-# Master a bounce to the streaming default (-14 LUFS, -1 dBTP true-peak ceiling):
-python master.py mysong.wav
+# Not sure what your track needs? Ask the assistant first (writes nothing):
+python master.py mysong.wav --advise
+
+# Let the assistant pick the settings and master it in one go:
+python master.py mysong.wav --auto
 # -> writes mysong.mastered.wav
+
+# Master to the streaming default (-14 LUFS, -1 dBTP) with your own settings:
+python master.py mysong.wav
 
 # Just measure a file and change nothing:
 python master.py mysong.wav --analyze
@@ -52,6 +58,25 @@ python master.py mysong.wav --reference favourite_track.wav
 
 Run `python master.py -h` for every option.
 
+## The assistant (`--advise` / `--auto`)
+
+If mastering feels hard, start here. `--advise` listens to your bounce and
+explains, in plain English, what it needs — then recommends settings:
+
+```
+=== Mastering assistant ===
+  OK Good headroom in the bounce (peaks at -6.2 dBFS).
+  OK Healthy dynamics (crest 12.0 dB). 'medium' processing should glue it without squashing.
+  -> Low-mids are built up (+5 dB around 300-600 Hz) -- sounds muddy/boxy. 'open' scoops that and adds air.
+  !! Bass is heavy (+8 dB in the low end). Mastering won't fix a boomy mix -- tame the kick/bass balance in Ableton for the best result.
+
+  Recommended: --tone open --strength medium
+```
+
+`--auto` applies those recommendations and masters in one step (any explicit
+`--tone`/`--strength` you pass still wins). Every normal run also prints a short
+assistant summary of anything worth acting on, so you learn what to listen for.
+
 ### Key options
 
 | Option | What it does | Default |
@@ -62,6 +87,8 @@ Run `python master.py -h` for every option.
 | `--tone` | `transparent`, `warm`, `bright`, `open` | `transparent` |
 | `--strength` | Compression/limiting intensity: `light`, `medium`, `strong` | `medium` |
 | `--reference FILE` | Match tonal balance to a reference track | off |
+| `--advise` | Diagnose the bounce and recommend settings; write nothing | off |
+| `--auto` | Let the assistant pick tone and strength | off |
 | `--mp3` | Also write a 320 kbps MP3 | off |
 
 ## Why -14 LUFS?
