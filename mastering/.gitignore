@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+*.pyc
+*.mastered.wav
+*.mastered.mp3
+tests/_smoke_out.wav
