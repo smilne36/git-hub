@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+transitions_out/
+.pytest_cache/
